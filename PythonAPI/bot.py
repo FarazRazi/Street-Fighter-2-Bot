@@ -11,10 +11,70 @@ class Bot:
         self.remaining_code=[]
         self.my_command = Command()
         self.buttn= Buttons()
+        self.prev = 0
+        self.learning = False
 
-    def fight(self,current_game_state,player):
+    def learn(self, file_name):
+        self.file_name = file_name
+        self.learning = True
+        # list of dataframes
+        self.dfs = []
+
+    def save(self, current_game_state, player):
+        # make a dataframe from the current game state
+        
+        # get obj from the game state
+        obj = current_game_state.object_to_dict()
+        
+        # save p1 and p2 as separate rows
+        p1 = obj['p1']
+        # name the columns with p1 prefix
+        p1 = {f'p1_{k}': v for k, v in p1.items()}
+
+        p2 = obj['p2']
+        # name the columns with p2 prefix
+        p2 = {f'p2_{k}': v for k, v in p2.items()}
+
+        # get buttons from p1 and p2
+        p1_buttons = p1['p1_buttons']
+        # name the buttons with p1 prefix
+        p1_buttons = {f'p1_{k}': v for k, v in p1_buttons.items()}
+
+        p2_buttons = p2['p2_buttons']
+        # name the buttons with p2 prefix
+        p2_buttons = {f'p2_{k}': v for k, v in p2_buttons.items()}
+
+        # remove buttons from p1 and p2
+        del p1['p1_buttons']
+        del p2['p2_buttons']
+
+        # add all buttons to p1 and p2
+        p1.update(p1_buttons)
+        p2.update(p2_buttons)
+
+        # remove p1 and p2 from the obj
+        del obj['p2']
+        del obj['p1']
+
+        # add all p1 and p2 columns to the obj
+        obj.update(p1)
+        obj.update(p2)
+
+        # add the player number
+        obj['curr_player'] = player
+
+        # print(obj)
+
+        # # convert the obj to a dataframe
+        # df = pd.DataFrame(obj, index=[0])
+
+        # append the dataframe to the dfs list
+        self.dfs.append(obj)
+
+
+    def fight(self,current_game_state,player,random):
         #python Videos\gamebot-competition-master\PythonAPI\controller.py 1
-        if player=="1":
+        if player==1:
             #print("1")
             #v - < + v - < + B spinning
 
@@ -50,7 +110,7 @@ class Bot:
                     self.run_command(["v+R","v+R","v+R","!v+!R"],current_game_state.player1)
             self.my_command.player_buttons=self.buttn
 
-        elif player=="2":
+        elif player==2:
 
             if( self.exe_code!=0  ):
                self.run_command([],current_game_state.player2)
@@ -83,6 +143,20 @@ class Bot:
                 else:
                     self.run_command(["v+R","v+R","v+R","!v+!R"],current_game_state.player2)
             self.my_command.player2_buttons=self.buttn
+            
+        # if game is in play and learning is on, save the current game state
+        # after every second
+        # curr = current_game_state.timer
+        # if (current_game_state.is_round_over == False and self.learning == True):
+        #     if (curr != self.prev):
+        #         self.save(current_game_state)
+        #         self.prev = curr
+
+        # after every frame
+        if (current_game_state.is_round_over == False and self.learning == True):
+            self.save(current_game_state, player)
+
+
         return self.my_command
 
 

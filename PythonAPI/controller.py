@@ -4,6 +4,10 @@ from game_state import GameState
 #from bot import fight
 import sys
 from bot import Bot
+
+import argparse
+import pandas as pd
+
 def connect(port):
     #For making a connection with the game
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,17 +32,62 @@ def receive(client_socket):
     return game_state
 
 def main():
-    if (sys.argv[1]=='1'):
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser()
+
+    # Add the number argument with a default value of 1
+    parser.add_argument('number', type=int, help='player number to control')
+
+    # Add the -L argument with a default value of False
+    parser.add_argument('-L', '--learning', action='store_true', help='enable learning mode')
+
+    # Add the -R argument with a default value of False
+    parser.add_argument('-R', '--random', action='store_true', help='enable random mode')
+
+    # Parse the command-line arguments
+    args = parser.parse_args()
+
+    print('Player : ', args.number)
+
+    if (args.number==1):
         client_socket = connect(9999)
-    elif (sys.argv[1]=='2'):
+    elif (args.number==2):
         client_socket = connect(10000)
+
+
+    # args has -L tag then toggle learning mode
+    learning = args.learning
+    
+    # args has -R tag then toggle random mode
+    # random = args.random
+    random = True
+
+
     current_game_state = None
     #print( current_game_state.is_round_over )
     bot=Bot()
+
+    if learning:
+        bot.learn("csvs/learning.csv")
+        
     while (current_game_state is None) or (not current_game_state.is_round_over):
 
         current_game_state = receive(client_socket)
-        bot_command = bot.fight(current_game_state,sys.argv[1])
+        bot_command = bot.fight(current_game_state, args.number, random)
         send(client_socket, bot_command)
+    
+    if ( learning ):
+        list = bot.dfs
+        bot.dfs = pd.DataFrame(list)
+
+        # read first row of csv
+        df = pd.read_csv(bot.file_name, nrows=1)
+        # if first column is not 'timer' then add header = True
+        header = False
+        if ( df.columns[0] != 'timer' ):
+            header = True
+
+        bot.dfs.to_csv(bot.file_name, mode='a', header=header, index=False)
+    
 if __name__ == '__main__':
    main()

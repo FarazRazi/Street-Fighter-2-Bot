@@ -17,3 +17,19 @@ class Player:
         self.player_buttons = Buttons(player_dict['buttons'])
         self.is_player_in_move = player_dict['in_move']
         self.move_id = player_dict['move']
+
+    def object_to_dict(self):
+        
+        output_dict = {}
+
+        output_dict['character'] = self.player_id
+        output_dict['health'] = self.health
+        output_dict['x'] = self.x_coord
+        output_dict['y'] = self.y_coord
+        output_dict['jumping'] = self.is_jumping
+        output_dict['crouching'] = self.is_crouching
+        output_dict['buttons'] = self.player_buttons.object_to_dict()
+        output_dict['in_move'] = self.is_player_in_move
+        output_dict['move'] = self.move_id
+
+        return output_dict
