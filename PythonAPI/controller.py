@@ -59,6 +59,10 @@ def main():
     parser.add_argument('-F', '--file', type=str,
                         help='file name to save learning data')
 
+    # Add argument for model name
+    parser.add_argument('-M', '--model', type=str,
+                        help='Model name to load', choices=['DT', 'R'])
+
     if (parser.parse_args().file is not None):
         file_name = parser.parse_args().file
     else:
@@ -69,21 +73,23 @@ def main():
 
     print('Player : ', args.number)
 
+    # args has -L tag then toggle learning mode
+    learning = args.learning
+
+    current_game_state = None
+
+    if (args.model is not None):
+        model_name = args.model
+        bot = Bot(model_name)
+        random = False
+    else:
+        bot = Bot()
+        random = True
+
     if (args.number == 1):
         client_socket = connect(9999)
     elif (args.number == 2):
         client_socket = connect(10000)
-
-    # args has -L tag then toggle learning mode
-    learning = args.learning
-
-    # args has -R tag then toggle random mode
-    # random = args.random
-    random = True
-
-    current_game_state = None
-    # print( current_game_state.is_round_over )
-    bot = Bot()
 
     if learning:
         bot.learn("csvs/"+file_name+".csv")
