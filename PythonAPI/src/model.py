@@ -51,10 +51,12 @@ class ModelHandler:
         # Read data from csv
         data = pd.read_csv(path)
 
+        print(data.head())
+
         X, y = pp.preProcessAndGetXy(data)
 
         # Train model
-        self.train_DT_CLF(X, y, "DT.pkl")
+        self.train_DT_CLF(X, y, "./src/DT.pkl")
 
     def predict_DT_CLF(self, X):
 
