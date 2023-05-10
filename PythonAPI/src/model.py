@@ -2,6 +2,9 @@ import pickle
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+import numpy as np
+import pandas as pd
+import src.preprocessing as pp
 
 
 class ModelHandler:
@@ -20,7 +23,7 @@ class ModelHandler:
             print("Model not found")
             return None
 
-    def train_DT_CLF(X, y):
+    def train_DT_CLF(self, X, y, path):
 
         # Split data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(
@@ -40,8 +43,18 @@ class ModelHandler:
         print(f"Accuracy: {accuracy}")
 
         # Save model in file
-        with open('../models/DT.pkl', 'wb') as model_file:
+        with open(path, 'wb') as model_file:
             pickle.dump(clf, model_file)
+
+    def train_model_from_csv(self, path):
+
+        # Read data from csv
+        data = pd.read_csv(path)
+
+        X, y = pp.preProcessAndGetXy(data)
+
+        # Train model
+        self.train_DT_CLF(X, y, "DT.pkl")
 
     def predict_DT_CLF(self, X):
 
@@ -51,5 +64,12 @@ class ModelHandler:
 
         # Predict on testing data
         y_pred = self.model.predict(X)
+
+        # convert values to binary strings
+        binary_strings = [bin(value)[2:].zfill(10) for value in y_pred]
+
+        # transform binary strings to arrays of 10 elements
+        y_pred = np.array([list(value)
+                          for value in binary_strings]).astype(int)
 
         return y_pred

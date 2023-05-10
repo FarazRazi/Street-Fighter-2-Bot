@@ -8,6 +8,7 @@ from bot import Bot
 
 import argparse
 import pandas as pd
+import src.model as model
 
 
 def connect(port):
@@ -61,7 +62,16 @@ def main():
 
     # Add argument for model name
     parser.add_argument('-M', '--model', type=str,
-                        help='Model name to load', choices=['DT', 'R'])
+                        help='Model name to load', choices=['DT'], default='DT')
+
+    # Add argument for model name
+    parser.add_argument('-T', '--train', action='store_true',
+                        help='enable initial training')
+
+    if (parser.parse_args().train):
+        print("Training mode enabled")
+        md = model.ModelHandler()
+        md.train_model_from_csv("./csvs/learning.csv")
 
     if (parser.parse_args().file is not None):
         file_name = parser.parse_args().file
@@ -74,15 +84,20 @@ def main():
     print('Player : ', args.number)
 
     # args has -L tag then toggle learning mode
+    if args.learning:
+        print('Learning mode enabled')
+
     learning = args.learning
 
     current_game_state = None
 
-    if (args.model is not None):
+    if (args.model is not None and args.random is False):
+        print("Model mode enabled : "+args.model+" model")
         model_name = args.model
         bot = Bot(model_name)
         random = False
     else:
+        print("Random mode enabled")
         bot = Bot()
         random = True
 
