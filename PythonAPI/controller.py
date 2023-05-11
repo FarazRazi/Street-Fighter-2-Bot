@@ -62,16 +62,11 @@ def main():
 
     # Add argument for model name
     parser.add_argument('-M', '--model', type=str,
-                        help='Model name to load', choices=['DT'], default='DT')
+                        help='Model name to load', choices=['DT', 'N'], default='DT')
 
     # Add argument for model name
     parser.add_argument('-T', '--train', action='store_true',
                         help='enable initial training')
-
-    if (parser.parse_args().train):
-        print("Training mode enabled")
-        md = model.ModelHandler()
-        md.train_model_from_csv("./csvs/learning.csv")
 
     if (parser.parse_args().file is not None):
         file_name = parser.parse_args().file
@@ -100,6 +95,12 @@ def main():
         print("Random mode enabled")
         bot = Bot()
         random = True
+
+    if (parser.parse_args().train):
+        print("Training mode enabled")
+        md = model.ModelHandler()
+        md.model_name = args.model
+        md.train_model_from_csv("./csvs/learning.csv")
 
     if (args.number == 1):
         client_socket = connect(9999)

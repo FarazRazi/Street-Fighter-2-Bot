@@ -7,6 +7,19 @@ def readData(path):
     return df
 
 
+target_columns = ['player_Up', 'player_Down',
+                  'player_Right', 'player_Left', 'player_Y', 'player_B', 'player_X',
+                  'player_A', 'player_L', 'player_R']
+all_columns = ['timer', 'opponent_character', 'opponent_health', 'opponent_jumping',
+               'opponent_crouching', 'opponent_in_move', 'opponent_Up',
+               'opponent_Down', 'opponent_Right', 'opponent_Left', 'opponent_Y',
+               'opponent_B', 'opponent_X', 'opponent_A', 'opponent_L', 'opponent_R',
+               'player_character', 'player_health', 'player_jumping',
+               'player_crouching', 'player_in_move', 'player_Up', 'player_Down',
+               'player_Right', 'player_Left', 'player_Y', 'player_B', 'player_X',
+               'player_A', 'player_L', 'player_R', 'x_diff', 'y_diff']
+
+
 def preProcessData(df):
 
     # remove rows where round_started is False
@@ -98,20 +111,20 @@ def preProcessData(df):
     # R move
     df['opponent_R'] = df['opponent_R'].astype(int)
 
-    # combine moves to create unique move id with player moves in string
-    df['player_moves'] = df['player_Up'].astype(str) + df['player_Down'].astype(str) + df['player_Right'].astype(str) + df['player_Left'].astype(str) + df['player_Y'].astype(
-        str) + df['player_B'].astype(str) + df['player_X'].astype(str) + df['player_A'].astype(str) + df['player_L'].astype(str) + df['player_R'].astype(str)
-    # combine moves to create unique move id with opponent moves in string
-    df['opponent_moves'] = df['opponent_Up'].astype(str) + df['opponent_Down'].astype(str) + df['opponent_Right'].astype(str) + df['opponent_Left'].astype(str) + df['opponent_Y'].astype(
-        str) + df['opponent_B'].astype(str) + df['opponent_X'].astype(str) + df['opponent_A'].astype(str) + df['opponent_L'].astype(str) + df['opponent_R'].astype(str)
+    # # combine moves to create unique move id with player moves in string
+    # df['player_moves'] = df['player_Up'].astype(str) + df['player_Down'].astype(str) + df['player_Right'].astype(str) + df['player_Left'].astype(str) + df['player_Y'].astype(
+    #     str) + df['player_B'].astype(str) + df['player_X'].astype(str) + df['player_A'].astype(str) + df['player_L'].astype(str) + df['player_R'].astype(str)
+    # # combine moves to create unique move id with opponent moves in string
+    # df['opponent_moves'] = df['opponent_Up'].astype(str) + df['opponent_Down'].astype(str) + df['opponent_Right'].astype(str) + df['opponent_Left'].astype(str) + df['opponent_Y'].astype(
+    #     str) + df['opponent_B'].astype(str) + df['opponent_X'].astype(str) + df['opponent_A'].astype(str) + df['opponent_L'].astype(str) + df['opponent_R'].astype(str)
 
-    # convert string to binary int
-    df['player_moves'] = df['player_moves'].apply(lambda x: int(x, 2))
-    df['opponent_moves'] = df['opponent_moves'].apply(lambda x: int(x, 2))
+    # # convert string to binary int
+    # df['player_moves'] = df['player_moves'].apply(lambda x: int(x, 2))
+    # df['opponent_moves'] = df['opponent_moves'].apply(lambda x: int(x, 2))
 
-    # drop moves
-    df = df.drop(['player_Up', 'player_Down', 'player_Right', 'player_Left', 'player_Y', 'player_B', 'player_X', 'player_A', 'player_L', 'player_R', 'opponent_Up',
-                 'opponent_Down', 'opponent_Right', 'opponent_Left', 'opponent_Y', 'opponent_B', 'opponent_X', 'opponent_A', 'opponent_L', 'opponent_R'], axis=1)
+    # # drop moves
+    # df = df.drop(['player_Up', 'player_Down', 'player_Right', 'player_Left', 'player_Y', 'player_B', 'player_X', 'player_A', 'player_L', 'player_R', 'opponent_Up',
+    #              'opponent_Down', 'opponent_Right', 'opponent_Left', 'opponent_Y', 'opponent_B', 'opponent_X', 'opponent_A', 'opponent_L', 'opponent_R'], axis=1)
 
     # convert other columns to int
     df['player_jumping'] = df['player_jumping'].astype(int)
@@ -127,13 +140,6 @@ def preProcessData(df):
     df = df.drop(['p2_move'], axis=1)
 
     return df
-
-
-target_columns = ['player_moves']
-all_columns = ['timer', 'opponent_character', 'opponent_health', 'opponent_jumping',
-               'opponent_crouching', 'opponent_in_move', 'player_character',
-               'player_health', 'player_jumping', 'player_crouching', 'player_in_move',
-               'x_diff', 'y_diff', 'player_moves', 'opponent_moves']
 
 
 def create_timer_slices(data):
@@ -166,10 +172,7 @@ def create_window_slices(timer_slices, window_size):
             for i in range(num_frames - window_size + 1):
                 window_slice = timer_slice[i:i+window_size]
                 # make dataframes
-                window_slice = pd.DataFrame(window_slice, columns=['timer', 'opponent_character', 'opponent_health', 'opponent_jumping',
-                                                                   'opponent_crouching', 'opponent_in_move', 'player_character',
-                                                                   'player_health', 'player_jumping', 'player_crouching', 'player_in_move',
-                                                                   'x_diff', 'y_diff', 'player_moves', 'opponent_moves'])
+                window_slice = pd.DataFrame(window_slice, columns=all_columns)
                 window_slices.append(window_slice)
     return window_slices
 

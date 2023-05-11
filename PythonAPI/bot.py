@@ -99,7 +99,7 @@ class Bot:
                 # if pressed has move and in next action it is not present
                 # add '!' to the current move
                 # remove from pressed
-                if action[i] == 1:
+                if action[i] != 0:
                     if added:
                         symbol += "+"
 
@@ -111,7 +111,7 @@ class Bot:
                     pressed.remove(i)
                     remove = False
 
-                if action[i] == 1:
+                if action[i] != 0:
                     if i == 0:
                         symbol += "^"
                     elif i == 1:
@@ -268,8 +268,15 @@ class Bot:
         #         self.prev = curr
 
         # after every frame
+    def combineFrames(self, current_game_state, player):
+        # print(obj)
+        obj = self.convert_to_obj(current_game_state, player)
+        # append the dataframe to the dfs list
+        self.actions.append(obj)
 
     def playModel(self, current_game_state, player):
+        if (self.exe_code != 0):
+            self.run_command([], current_game_state.player2)
 
         self.framesCount += 1
 
@@ -278,45 +285,50 @@ class Bot:
             self.framesCount = 0
             return
 
-        obj = self.convert_to_obj(current_game_state, player)
+        self.combineFrames(current_game_state, player)
 
-        # convert the obj to a DataFrame
-        df = pd.DataFrame([obj])
+        if self.framesCount % np.random.randint(1, 9) == 0:
 
-        # print(df)
+            # obj = self.convert_to_obj(current_game_state, player)
 
-        # preprocess the dataframe
-        X, y = preProcessAndGetXy(df)
+            # convert the obj to a DataFrame
+            df = pd.DataFrame(self.actions)
 
-        if X is None:
-            print("No Data")
-            return
+            # print(df)
 
-        # predict the action
-        action = self.modelHandler.predict_DT_CLF(X)
+            # preprocess the dataframe
+            X, y = preProcessAndGetXy(df)
 
-        # print(action)
+            if X is None:
+                print("No Data")
+                return
 
-        # endecode the action
-        action = self.encodeAction(action)
+            # predict the action
+            action = self.modelHandler.predict_DT_CLF(X)
 
-        # print(action)
+            # print(action)
 
-        # run the action
-        if player == 1:
-            self.run_command(action, current_game_state.player1)
-            self.my_command.player_buttons = self.buttn
-        elif player == 2:
-            self.run_command(action, current_game_state.player2)
-            self.my_command.player2_buttons = self.buttn
+            # endecode the action
+            action = self.encodeAction(action)
 
-        if self.framesCount % 5 == 0:
-            self.buttn = Buttons()
-            # self.framesCount = 0
+            # print(action)
 
-        # if action has "-" increase the frames count
-        if action[0] == "-":
-            self.framesCount += 5
+            # run the action
+            if player == 1:
+                self.run_command(action, current_game_state.player1)
+                self.my_command.player_buttons = self.buttn
+            elif player == 2:
+                self.run_command(action, current_game_state.player2)
+                self.my_command.player2_buttons = self.buttn
+
+            if self.framesCount % 9 == 0:
+                self.buttn = Buttons()
+
+            # if action has "-" increase the frames count
+            if action[0] == "-":
+                self.framesCount += 6
+
+            self.actions = []
 
     def fight(self, current_game_state, player, random):
 
@@ -362,6 +374,8 @@ class Bot:
             "R": ("R", not player.player_buttons.R),
             "!R": ("R", False),
         }
+
+        print(com)
 
         if len(self.remaining_code) == 0:
             self.fire_code = com
