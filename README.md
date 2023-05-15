@@ -1,6 +1,24 @@
 # Street-Fighter-2-Bot
 
-## How to Start
+Welcome to our AI project - Street Fighter 2 Bot! In this project, we have developed an intelligent bot that can play Street Fighter 2, a popular fighting game. Our bot utilizes machine learning techniques to analyze the game state and make strategic moves in response to the opponent's actions.
+
+## Data Preparation and Feature Engineering
+
+To train our bot, we collected a dataset that captures the game states and corresponding moves. The dataset includes both player 1's moves and the resulting moves made by player 2. We performed feature engineering to extract meaningful features from the available columns, including the timer, opponent character, opponent health, opponent movement, opponent button presses, player character, player health, player movement, player button presses, and position differences. These features effectively capture the game state and provide valuable information for decision-making.
+
+## Data Preprocessing and Model Selection
+
+Before training the model, we preprocessed the dataset by normalizing numeric features, encoding categorical features, and splitting the data into training and testing sets. We performed various preprocessing steps such as removing irrelevant rows and columns, identifying the player in control, flipping X coordinates for consistency, calculating coordinate differences, converting moves to numbers, combining moves into unique move IDs, and converting data types.
+
+For the analysis, we selected the decision tree classifier as our model of choice. The decision tree classifier is well-suited for our problem and dataset, allowing us to make predictions based on the game state and generate suitable counter moves for player 2.
+
+## Prediction and Integration
+
+After training and evaluating the model, we integrated it into the game logic to generate counter moves for player 2. Our bot processes each frame, predicts an action using the decision tree classifier, and executes the action accordingly. This integration enables dynamic decision-making based on the current game state, enhancing player experience and gameplay. The bot's predictions also facilitate learning and improvement over time as the current game state is saved for potential future analysis.
+
+Overall, our AI-based Street Fighter 2 Bot showcases the power of machine learning and its application in the gaming domain. We believe this project contributes to the advancement of AI in gaming and opens up new possibilities for creating intelligent and adaptive virtual opponents.
+
+## How to Start *(Instructions for game tournament)*
 Here's an example of how you can run the code using the provided command-line arguments:
 ``` bash
 python controller.py 1 -h
